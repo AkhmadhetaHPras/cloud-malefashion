@@ -48,5 +48,5 @@ RUN chown -R $USER:$USER /var/www
 USER www
 
 # Expose port 9001 and start php-fpm server
-EXPOSE 9001
+EXPOSE 8080
 CMD ["php-fpm"]
