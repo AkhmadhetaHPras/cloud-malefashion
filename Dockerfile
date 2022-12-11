@@ -23,7 +23,10 @@ COPY composer.json .
 RUN composer install --no-scripts
 COPY . .
 
+COPY docker/000-default.conf /etc/apache2/sites-available/000-default.conf
+
 CMD php artisan migrate:fresh --seed;php artisan serve --host=0.0.0.0 --port 80
+
 
 # # Copy composer.lock and composer.json
 # COPY composer.lock composer.json /var/www/
