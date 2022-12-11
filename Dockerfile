@@ -24,7 +24,7 @@ RUN composer install --no-scripts
 COPY . .
 
 COPY docker/000-default.conf /etc/apache2/sites-available/000-default.conf
-
+EXPOSE 8080
 CMD php artisan optimize;php artisan migrate:fresh --seed;php artisan serve --host=0.0.0.0 --port 8080
 
 
