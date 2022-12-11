@@ -45,6 +45,6 @@ networks:
   app-network:
     driver: bridge
 #Volumes
-volumes:
+volume:
   dbdata:
     driver: local
