@@ -1,18 +1,4 @@
-FROM composer:latest as build
-WORKDIR /app
-COPY . /app
-RUN composer install
-
 FROM php:8.1.12-fpm
-RUN docker-php-ext-install pdo pdo_mysql
-
-
-
-# # Copy composer.lock and composer.json
-# COPY composer.lock composer.json /var/www/
-
-# # Set working directory
-WORKDIR /var/www
 
 RUN apt-get update && apt-get install -y \
     apache2 \
@@ -28,18 +14,37 @@ RUN apt-get update && apt-get install -y \
     git \
     curl
 
-# Clear cache
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+RUN docker-php-ext-install pdo pdo_mysql
 
-EXPOSE 8080
-COPY --from=build /app /var/www/
-COPY docker/000-default.conf /etc/apache2/sites-available/000-default.conf
-COPY .env.example /var/www/.env
-RUN chmod 777 -R /var/www/storage/ && \
-    echo "Listen 8080" >> /etc/apache2/ports.conf && \
-    chown -R www-data:www-data /var/www/ && \
-    a2enmod rewrite
-    
+WORKDIR /app
+COPY composer.json .
+
+RUN composer install --no-scripts
+COPY . .
+
+CMD php artisan migrate:fresh --seed;php artisan serve --host=0.0.0.0 --port 80
+
+# # Copy composer.lock and composer.json
+# COPY composer.lock composer.json /var/www/
+
+# # Set working directory
+# WORKDIR /var/www
+
+
+
+# # Clear cache
+# RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# EXPOSE 8080
+# COPY --from=build /app /var/www/
+# COPY docker/000-default.conf /etc/apache2/sites-available/000-default.conf
+# COPY .env.example /var/www/.env
+# RUN chmod 777 -R /var/www/storage/ && \
+#     echo "Listen 8080" >> /etc/apache2/ports.conf && \
+#     chown -R www-data:www-data /var/www/ && \
+#     a2enmod rewrite
+
 # # Install extensions
 # RUN docker-php-ext-install pdo_mysql
 # # RUN docker-php-ext-configure gd --with-gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ --with-png-dir=/usr/include/
