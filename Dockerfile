@@ -3,6 +3,26 @@ WORKDIR /app
 COPY . /app
 RUN composer install
 
+
+RUN apt-get update && apt-get install -y \
+    apache2 \
+    build-essential \
+    libpng-dev \
+    libjpeg62-turbo-dev \
+    libfreetype6-dev \
+    locales \
+    zip \
+    jpegoptim optipng pngquant gifsicle \
+    vim \
+    unzip \
+    git \
+    curl
+
+# Clear cache
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+
+
+
 FROM php:8.1.12-fpm
 RUN docker-php-ext-install pdo pdo_mysql
 
